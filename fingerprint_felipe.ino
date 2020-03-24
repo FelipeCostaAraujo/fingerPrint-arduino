@@ -9,40 +9,40 @@
 // pin #2 is IN from sensor (GREEN wire)
 // pin #3 is OUT from arduino  (WHITE wire)
 // comment these two lines if using hardware serial
-SoftwareSerial mySerial(2, 3);
+SoftwareSerial mySerial(11, 12);
 
 Adafruit_Fingerprint finger = Adafruit_Fingerprint(&mySerial);
-LiquidCrystal lcd(13 , 11 , 9 , 7, 5 , 4);
+const int rs = 2, en = 3 , d4 = 4, d5 = 5, d6 = 6, d7 = 7;
+LiquidCrystal lcd(rs , en , d4, d5, d6 , d7);
 
-void setup()  
+void setup()
 {
-  lcd.begin(16,2);
-  
-  //lcd.print("Everson gay");
-  //lcd.setCursor(0,1);
-  //lcd.print("Nao programa nada");
+  lcd.begin(16, 2);
   pinMode(12, OUTPUT);
   pinMode(8, OUTPUT);
   Serial.begin(9600);
   while (!Serial);  // For Yun/Leo/Micro/Zero/...
   delay(100);
-  
-  lcd.setCursor(0,0);
   Serial.print("\n\nAdafruit finger detect test");
+
+  lcd.setCursor(0, 0);
+  lcd.print("Aguard digital");
 
   // set the data rate for the sensor serial port
   finger.begin(57600);
-  
+
   if (finger.verifyPassword()) {
     Serial.println("Found fingerprint sensor!");
   } else {
     Serial.println("Did not find fingerprint sensor :(");
-    while (1) { delay(1); }
+    while (1) {
+      delay(1);
+    }
   }
 
   finger.getTemplateCount();
   Serial.print("Sensor contains "); Serial.print(finger.templateCount); Serial.println(" templates");
-  
+
 }
 
 void loop()                     // run over and over again
@@ -50,12 +50,10 @@ void loop()                     // run over and over again
   getFingerprintIDez();
   delay(50);            //don't ned to run this at full speed.
   digitalWrite(8, HIGH);
-  lcd.setCursor(0,0);
-  lcd.print("Aguardando digital");
 }
 
 uint8_t getFingerprintID() {
-  
+
   uint8_t p = finger.getImage();
   switch (p) {
     case FINGERPRINT_OK:
@@ -98,7 +96,7 @@ uint8_t getFingerprintID() {
       Serial.println("Unknown error");
       return p;
   }
-  
+
   // OK converted!
   p = finger.fingerFastSearch();
   if (p == FINGERPRINT_OK) {
@@ -112,11 +110,11 @@ uint8_t getFingerprintID() {
   } else {
     Serial.println("Unknown error");
     return p;
-  }   
-  
+  }
+
   // found a match!
-  Serial.print("Found ID #"); Serial.print(finger.fingerID); 
-  Serial.print(" with confidence of "); Serial.println(finger.confidence); 
+  Serial.print("Found ID #"); Serial.print(finger.fingerID);
+  Serial.print(" with confidence of "); Serial.println(finger.confidence);
 
   return finger.fingerID;
 }
@@ -132,21 +130,47 @@ int getFingerprintIDez() {
   p = finger.fingerFastSearch();
   if (p != FINGERPRINT_OK)  return -1;
 
-  
+
   // found a match!
-  
-  Serial.print("Found ID #"); Serial.print(finger.fingerID); 
-  
+
+  Serial.print("Found ID #"); Serial.print(finger.fingerID);
+
   digitalWrite(12, HIGH);
-  digitalWrite(8,LOW);
+  digitalWrite(8, LOW);
   delay(1000); // Wait for 1000 millisecond(s)
   digitalWrite(12, LOW);
   Serial.print(" with confidence of "); Serial.println(finger.confidence);
-  lcd.setCursor(0,1);
-  if(finger.fingerID == 1){
-  lcd.print(" Felipe   ");
-  }else if(finger.fingerID == 2){
-    lcd.print(" Dani   ");
+
+
+  getNameFingerPrint(finger.fingerID);
+
+  return finger.fingerID;
+}
+
+void getNameFingerPrint(int id) {
+  lcd.clear();
+  lcd.display();
+  lcd.setCursor(0, 0);
+  lcd.print("Ultima Digital");
+  lcd.setCursor(0, 1);
+  switch (id) {
+    case 1:
+      lcd.print("Felipe");
+      break;
+    case 2:
+      lcd.print("Daniela");
+      break;
+    case 3:
+      lcd.print("Elisabete");
+      break;
+    case 4:
+      lcd.print("Daiane");
+      break;
+    case 5:
+      lcd.print("Cicero");
+      break;
+    case 10:
+      lcd.print("Felipe");
+      break;
   }
-  return finger.fingerID; 
 }
